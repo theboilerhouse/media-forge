@@ -118,14 +118,19 @@ function App() {
       if (!response.ok) throw new Error(data.error || 'Extraction failed');
 
       if (data.success) {
+        const labelBitrate = data.bitrate || data.resolution || '';
         setMediaInfo({
           title: data.title,
           duration: data.duration,
-          bitrate: data.bitrate || data.resolution,
+          bitrate: labelBitrate,
           size: data.size
         });
         setFileId(data.file_id);
-        setDownloadUrl(`${API_BASE_URL}/download/${data.file_id}`);
+        const params = new URLSearchParams();
+        if (data.title) params.set('title', data.title);
+        if (labelBitrate) params.set('bitrate', labelBitrate);
+        const qs = params.toString();
+        setDownloadUrl(`${API_BASE_URL}/download/${data.file_id}${qs ? `?${qs}` : ''}`);
         setStatus('success');
       } else {
         throw new Error('Extraction failed');
